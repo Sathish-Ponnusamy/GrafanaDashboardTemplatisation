@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grafana Dashboard Creator</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* --- Glassmorphism Effect Styles --- */
+        .glass-container {
+            /* Semi-transparent white background */
+            background: rgba(255, 255, 255, 0.4); 
+            /* Blur the content behind this element */
+            backdrop-filter: blur(15px); 
+            /* Subtle white border for the frosted look */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* Soft, light blue shadow */
+            box-shadow: 0 8px 32px 0 rgba(14, 165, 233, 0.15); 
+        }
+
+        .glass-section {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        /* Custom scrollbar for aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #e0f2fe; } /* Sky-100 */
+        ::-webkit-scrollbar-thumb { background: #93c5fd; border-radius: 4px; } /* Blue-300 */
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; } /* Sky-400 */
+        
+        /* Smooth transitions for interactive elements */
+        .transition-all { transition: all 0.3s ease; }
+
+        /* Give textareas a min-height */
+        textarea {
+            min-height: 200px;
+        }
+    </style>
+    <script>
+        // Set up custom Tailwind configuration
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'grafana-primary': '#0ea5e9', // Tailwind sky-500
+                        'grafana-dark': '#1e242b',
+                    },
+                },
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                },
+            },
+        }
+    </script>
+</head>
+<!-- Soft blue background to emphasize the glass effect -->
+<body class="bg-sky-50 font-sans min-h-screen p-4 md:p-8"> 
+    <!-- Main Glass Container -->
+    <div class="max-w-4xl mx-auto glass-container rounded-3xl p-6 md:p-10">
+        
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-grafana-dark">
+                Grafana Dashboard Creator
+            </h1>
+            <p class="mt-2 text-lg text-gray-700">
+                Easily configure new data sources and dashboards via the Grafana API.
+            </p>
+
+            <!-- Navigation Menu - Updated for glassy tab look -->
+            <nav class="mt-6 flex justify-center space-x-2 md:space-x-4">
+                <!-- Active Button Style (Primary Color) -->
+                <button onclick="showPage('page-home')" class="nav-link px-4 py-2 rounded-xl font-medium transition-all text-sm md:text-base bg-grafana-primary text-white shadow-lg shadow-sky-300/50" id="nav-home"> Home</button>
+                <!-- Inactive Button Style (Glassy white) -->
+                <button onclick="showPage('page-instance')" class="nav-link px-4 py-2 rounded-xl font-medium transition-all text-sm md:text-base bg-white/60 text-gray-700 hover:bg-white/90" id="nav-instance"> Instance Details</button>
+                <button onclick="showPage('page-datasource')" class="nav-link px-4 py-2 rounded-xl font-medium transition-all text-sm md:text-base bg-white/60 text-gray-700 hover:bg-white/90" id="nav-datasource"> Datasource</button>
+                <button onclick="showPage('page-dashboard')" class="nav-link px-4 py-2 rounded-xl font-medium transition-all text-sm md:text-base bg-white/60 text-gray-700 hover:bg-white/90" id="nav-dashboard"> Dashboard</button>
+            </nav>
+        </header>
+
+        <!-- Global Error Message Area -->
+        <div id="global-error" class="hidden max-w-4xl mx-auto p-4 mb-4 glass-section text-red-700 border-red-300 rounded-xl text-sm"></div>
+
+        <!-- Page Content Wrapper -->
+        <div id="page-content-wrapper">
+            
+            <!-- Page 0: Home (Architecture) -->
+            <div id="page-home" class="page-content space-y-8">
+                <!-- Section Styling Update: Using glass-section -->
+                <section class="p-6 rounded-xl glass-section shadow-lg">
+                    <h2 class="text-2xl font-semibold text-grafana-dark mb-4 border-b pb-2 border-sky-300">
+                         Application Architecture: Client-Side Provisioning Workflow
+                    </h2>
+                    <p class="text-gray-700 mb-6">
+                        This application functions as a **Client-Side Provisioning Client** designed to simplify interactions with your Grafana instance. Since this tool is a single-page HTML application and has no external server, the component labeled **'Backend Service/API Handler'** in the diagram below is implemented as a dedicated **Client-Side JavaScript Module** within your browser.
+                    </p>
+
+                    <!-- START ARCHITECTURE DIAGRAM -->
+                    <div class="flex justify-center my-8">
+                        <img src="C:\Users\2254513\OneDrive - Cognizant\Documents\CTS\YEA\H1 2025\Grafana Dashboard Creator\GrafanaDashboardTemplatizationDesignV0.2.png" 
+                            alt="Architecture Diagram: User-Uploaded Flowchart"
+                            class="w-full max-w-xl h-auto rounded-xl shadow-xl border-2 border-grafana-primary" 
+                            onerror="this.onerror=null; this.src='https://placehold.co/700x300/a5f3fc/082f49?text=Architecture+Diagram+Placeholder';"
+                        />
+                    </div>
+                    <!-- END ARCHITECTURE DIAGRAM -->
+                    
+                    <h3 class="text-xl font-medium text-grafana-dark mb-3">Workflow Overview</h3>
+                    <ol class="list-decimal list-inside space-y-4 pl-4 text-gray-700">
+                        <li>
+                            <strong class="text-grafana-dark">Start Workflow & User Inputs (Web Application UI):</strong> You begin by providing the required credentials and configuration details (Grafana URL, API Keys, Datasource URL, or Dashboard JSON) into the application's interface.
+                        </li>
+                        <li>
+                            <strong class="text-grafana-dark">API Handler (Client-Side):</strong> The JavaScript code (which acts as the Handler) captures your inputs. It performs two critical tasks:
+                            <ul class="list-disc list-inside ml-6 mt-1 text-sm">
+                                <li>Generates the correct JSON payload (Datasource JSN or Dashboard JSN).</li>
+                                <li>Constructs the necessary Basic Authentication header using your credentials.</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <strong class="text-grafana-dark">HTTP POST to Grafana WebAPI:</strong> The Handler uses the browser's native `fetch` API to send the complete, authenticated `HTTP POST` request directly to your Grafana instance's API endpoints (`/api/datasources` or `/api/dashboards/db`).
+                        </li>
+                        <li>
+                            <strong class="text-grafana-dark">Grafana Response & End Workflow:</strong> Grafana processes the request (creating the Datasource or Dashboard) and returns the status, which is then displayed back to you in the UI.
+                        </li>
+                    </ol>
+                </section>
+                <div class="text-center p-4 bg-sky-100 border border-sky-300 rounded-xl"> 
+                    <p class="text-gray-700">DEFRA || Cognizant || CCTS Team's Product @ 2025 </p>
+                </div>
+            </div>
+            
+            <!-- Page 1: Instance -->
+            <div id="page-instance" class="page-content space-y-8 hidden">
+                <!-- Grafana Instance & Auth -->
+                <!-- Section Styling Update: Using glass-section -->
+                <section class="p-6 rounded-xl glass-section shadow-lg">
+                    <h2 class="text-2xl font-semibold text-grafana-dark mb-4 border-b pb-2 border-sky-300">
+                        1. Grafana Instance Details (Common for all actions)
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-3">
+                            <label for="grafana_url" class="block text-sm font-medium text-gray-700 mb-1">Grafana Base URL (e.g., http://localhost:3000)</label>
+                            <!-- Updated input styling for glassy look -->
+                            <input type="url" id="grafana_url" value="http://localhost:3000" required
+                                   class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80">
+                        </div>
+
+                        <div>
+                            <label for="grafana_username" class="block text-sm font-medium text-gray-700 mb-1">API Username (e.g., admin)</label>
+                            <!-- Updated input styling for glassy look -->
+                            <input type="text" id="grafana_username" value="admin" required
+                                   class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80">
+                        </div>
+                        
+                        <div>
+                            <label for="grafana_password" class="block text-sm font-medium text-gray-700 mb-1">API Password</label>
+                            <!-- Updated input styling for glassy look -->
+                            <input type="password" id="grafana_password" value="admin" required
+                                   class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80">
+                        </div>
+
+                        <div class="flex items-center pt-2">
+                            <input id="skip_ssl_verify" type="checkbox" checked
+                                   class="h-4 w-4 text-grafana-primary border-sky-300 rounded focus:ring-grafana-primary">
+                            <label for="skip_ssl_verify" class="ml-2 block text-sm font-medium text-gray-700">Skip SSL Verify (Recommended for local/test setups)</label>
+                        </div>
+                    </div>
+                </section>
+                <div class="text-center p-4 bg-sky-100 border border-sky-300 rounded-xl"> 
+                    <p class="text-gray-700">Set your instance details here first. These credentials will be used for creating datasources and dashboards.</p>
+                </div>
+            </div>
+            
+            <!-- Page 2: Datasource -->
+            <div id="page-datasource" class="page-content space-y-8 hidden">
+                <!-- Datasource Configuration -->
+                <!-- Section Styling Update: Using glass-section -->
+                <section class="p-6 rounded-xl glass-section shadow-xl space-y-6">
+                    <h2 class="text-2xl font-semibold text-grafana-dark mb-4 border-b pb-2 border-sky-300">
+                        2. Datasource Configuration
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div>
+                            <label for="ds_name" class="block text-sm font-medium text-gray-700 mb-1">Datasource Name</label>
+                            <!-- Updated input styling for glassy look -->
+                            <input type="text" id="ds_name" value="custom_datasource" required
+                                   class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80">
+                        </div>
+
+                        <div>
+                            <label for="ds_type" class="block text-sm font-medium text-gray-700 mb-1">Datasource Type</label>
+                            <!-- Updated select styling for glassy look -->
+                            <select id="ds_type" 
+                                    class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary bg-white/80 transition-all">
+                                <option value="graphite" selected>Graphite</option>
+                                <option value="prometheus">Prometheus</option>
+                                <option value="loki">Loki</option>
+                                <option value="influxdb">InfluxDB</option>
+                                <option value="mysql">MySQL</option>
+                                <option value="postgres">PostgreSQL</option>
+                            </select>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label for="ds_url" class="block text-sm font-medium text-gray-700 mb-1">Datasource Backend URL</label>
+                            <!-- Updated input styling for glassy look -->
+                            <input type="url" id="ds_url" value="http://my-backend-service:8080" required
+                                   class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80">
+                        </div>
+
+                        <div>
+                            <label for="ds_access" class="block text-sm font-medium text-gray-700 mb-1">Access Mode</label>
+                            <!-- Updated select styling for glassy look -->
+                            <select id="ds_access" 
+                                    class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary bg-white/80 transition-all">
+                                <option value="proxy" selected>Proxy (Server-side)</option>
+                                <option value="direct">Direct (Browser-side)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex items-center pt-2">
+                            <input id="ds_basic_auth" type="checkbox"
+                                   class="h-4 w-4 text-grafana-primary border-sky-300 rounded focus:ring-grafana-primary">
+                            <label for="ds_basic_auth" class="ml-2 block text-sm font-medium text-gray-700">Enable Datasource Basic Auth</label>
+                        </div>
+
+                        <!-- Note on Basic Auth - Updated bg color -->
+                        <div class="md:col-span-2 text-sm text-gray-700 mt-2 p-3 bg-sky-100 rounded-xl border border-sky-300">
+                            *Note: For the purpose of this example, only the core fields from your curl request are configured. Other fields like `database` or `json_data` may be required depending on the Datasource Type selected.
+                        </div>
+                    </div>
+
+                    <!-- Submit Button - Updated primary color and shadow -->
+                    <button id="ds-button" onclick="createDatasource()"
+                            class="w-full flex items-center justify-center p-4 text-lg font-bold rounded-xl shadow-xl 
+                                bg-grafana-primary text-white hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300 
+                                disabled:opacity-50 transition-all transform hover:scale-[1.01] shadow-sky-500/50">
+                        <svg id="ds-loader" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Create Data Source
+                    </button>
+
+                    <!-- Result Area -->
+                    <div id="ds-result-area" class="mt-2">
+                        <h2 class="text-xl font-semibold text-grafana-dark mb-4">API Response Status</h2>
+                        <!-- Response pre area color coded for results -->
+                        <pre id="ds-response-status" class="bg-gray-800 text-white p-4 rounded-xl overflow-x-auto text-sm transition-all shadow-md">Awaiting submission...</pre>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Page 3: Dashboard -->
+            <div id="page-dashboard" class="page-content space-y-8 hidden">
+                <!-- Dashboard Configuration -->
+                <!-- Section Styling Update: Using glass-section -->
+                <section class="p-6 rounded-xl glass-section shadow-xl space-y-6">
+                    <h2 class="text-2xl font-semibold text-grafana-dark mb-4 border-b pb-2 border-sky-300">
+                        3. Dashboard Configuration
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="dash_folder_id" class="block text-sm font-medium text-gray-700 mb-1">Folder ID</label>
+                            <!-- Updated input styling for glassy look -->
+                            <input type="number" id="dash_folder_id" value="0" required
+                                   class="w-full p-3 border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80">
+                        </div>
+                        
+                        <div class="flex items-center pt-8">
+                            <input id="dash_overwrite" type="checkbox" checked
+                                   class="h-4 w-4 text-grafana-primary border-sky-300 rounded focus:ring-grafana-primary">
+                            <label for="dash_overwrite" class="ml-2 block text-sm font-medium text-gray-700">Overwrite Existing Dashboard</label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="dashboard_json" class="block text-sm font-medium text-gray-700 mb-1">Dashboard JSON Body</label>
+                        <p class="text-sm text-gray-500 mb-2">This should be the JSON object that is the value for the `"dashboard"` key in the API payload.</p>
+                        <!-- Updated textarea styling for glassy look -->
+                        <textarea id="dashboard_json"
+                                  class="w-full p-3 font-mono text-sm border border-sky-300 rounded-xl focus:ring-grafana-primary focus:border-grafana-primary transition-all bg-white/80"
+                                  rows="20"></textarea>
+                    </div>
+
+                    <!-- Submit Button - Updated primary color and shadow -->
+                    <button id="dash-button" onclick="createDashboard()"
+                            class="w-full flex items-center justify-center p-4 text-lg font-bold rounded-xl shadow-xl 
+                                bg-grafana-primary text-white hover:bg-sky-600 focus:outline-none focus:ring-4 focus:ring-sky-300 
+                                disabled:opacity-50 transition-all transform hover:scale-[1.01] shadow-sky-500/50">
+                        <svg id="dash-loader" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Create Dashboard
+                    </button>
+
+                    <!-- Result Area -->
+                    <div id="dash-result-area" class="mt-2">
+                        <h2 class="text-xl font-semibold text-grafana-dark mb-4">API Response Status</h2>
+                        <!-- Response pre area color coded for results -->
+                        <pre id="dash-response-status" class="bg-gray-800 text-white p-4 rounded-xl overflow-x-auto text-sm transition-all shadow-md">Awaiting submission...</pre>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This object is the default `dashboard` payload from your cURL command.
+        // It's used to pre-populate the textarea.
+        const defaultDashboardJson = {
+            "id": null,
+            "uid": null,
+            "title": "My First API Dashboard",
+            "tags": [ "api" ],
+            "timezone": "browser",
+            "schemaVersion": 38,
+            "version": 0,
+            "refresh": "5s",
+            "panels": [
+                {
+                    "fieldConfig": { "defaults": {}, "overrides": [] },
+                    "gridPos": { "h": 22, "w": 24, "x": 0, "y": 0 },
+                    "id": 3,
+                    "links": [
+                        {
+                            "title": "Jenkins",
+                            "url": "https://jenkins-plants.azure.defra.cloud/job/Plants_Quality_Assurance/job/Run-Smoke-Tests-RTL/766/cucumber-html-reports/overview-features.html"
+                        }
+                    ],
+                    "options": {
+                        "code": {
+                            "language": "html",
+                            "showLineNumbers": false,
+                            "showMiniMap": false
+                        },
+                        "content": "# PHES SonarQube - Dashboard\r\n| PHES RepoName | Quality Gate Status | Code Coverage | Code Smells | Bugs | Security Rating | Security Hotspot | Vulnerabilities | Maintainability Rating | Reliability Rating | Lines of Code | Duplicated Lines | Technical Debt |\r\n|-------------------|----------------------------------|--------|--------|----|---------------|---------------| ---------------| ----------------------|------------------|-------------|----------------|--------------|\r\n| plants-admin-ui | [![Quality Gate Status](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=alert_status&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Coverage](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=coverage&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Code Smells](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=code_smells&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Bugs](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=bugs&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Security Rating](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=security_rating&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Security Hotspots](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=security_hotspots&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Vulnerabilities](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=vulnerabilities&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Maintainability Rating](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=sqale_rating&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Reliability Rating](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=reliability_rating&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Lines of Code](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=ncloc&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defr.cloud/dashboard?id=plants-admin-ui) | [![Duplicated Lines](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=duplicated_lines_density&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Technical Debt](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=sqale_index&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) |\r\n| plants-admin-ui | [![Quality Gate Status](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=alert_status&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Coverage](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=coverage&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Code Smells](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=code_smells&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Bugs](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=bugs&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Security Rating](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=security_rating&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Security Hotspots](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=security_hotspots&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Vulnerabilities](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=vulnerabilities&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Maintainability Rating](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=sqale_rating&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Reliability Rating](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=reliability_rating&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Lines of Code](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=ncloc&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defr.cloud/dashboard?id=plants-admin-ui) | [![Duplicated Lines](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=duplicated_lines_density&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) | [![Technical Debt](https://vss-sonarqube.azure.defra.cloud/api/project_badges/measure?project=plants-admin-ui&metric=sqale_index&token=sqb_939f58db792fde8a57f5e0aacb9c4d86ba94434f)](https://vss-sonarqube.azure.defra.cloud/dashboard?id=plants-admin-ui) |\r\n",
+                        "mode": "markdown"
+                    },
+                    "pluginVersion": "11.5.2",
+                    "title": "Sonar Dashboard",
+                    "type": "text"
+                },
+                {
+                    "datasource": { "type": "datasource", "uid": "-- Mixed --" },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": { "mode": "thresholds" },
+                            "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "fillOpacity": 80, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "lineWidth": 1, "scaleDistribution": { "type": "linear" }, "thresholdsStyle": { "mode": "off" } },
+                            "mappings": [ { "options": { "BLOCKER": { "color": "semi-dark-red", "index": 2 }, "CRITICAL": { "color": "red", "index": 0 }, "INFO": { "color": "green", "index": 4 }, "MAJOR": { "color": "light-red", "index": 1 }, "MINOR": { "color": "orange", "index": 3 } }, "type": "value" } ],
+                            "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] }
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": { "h": 8, "w": 12, "x": 0, "y": 22 },
+                    "id": 26,
+                    "options": { "barRadius": 0, "barWidth": 0.97, "colorByField": "severity", "fullHighlight": false, "groupWidth": 0.7, "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false }, "orientation": "auto", "showValue": "auto", "stacking": "none", "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }, "xTickLabelRotation": 0, "xTickLabelSpacing": 0 },
+                    "pluginVersion": "11.5.2",
+                    "targets": [
+                        { "columns": [], "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "aehhh1k3aieioc" }, "filters": [], "format": "table", "global_query_id": "", "parser": "uql", "refId": "A", "root_selector": "", "source": "url", "type": "json", "uql": "parse-json\r\n| scope \"issues\"\r\n| extend \"severity\"=tostring(\"severity\")\r\n| summarize \"resultCounts\"=count() by \"severity\"\r\n| project \"severity\",\"resultCounts\"", "url": "/api/issues/search?componentKeys=Imports-MS-FrontEndNotification,plants-application-form-microservice,plants-authentication-microservice,plants-backend-adapter-microservice,plants-certificate-microservice,plants-common,plants-common-ui,plants-exporter-ui,plants-file-storage-microservice,plants-form-configuration-microservice,plants-reference-data-microservice&types=CODE_SMELL&branch=master&statuses=OPEN&severities=MAJOR,CRITICAL,BLOCKER,MINOR", "url_options": { "data": "", "method": "GET" } },
+                        { "columns": [], "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "cehvnuynpgwzkb" }, "filters": [], "format": "table", "global_query_id": "", "hide": false, "parser": "uql", "refId": "B", "root_selector": "", "source": "url", "type": "json", "uql": "parse-json\r\n| scope \"issues\"\r\n| extend \"severity\"=tostring(\"severity\")\r\n| summarize \"resultCounts\"=count() by \"severity\"\r\n| project \"severity\",\"resultCounts\"", "url": "/api/issues/search?types=CODE_SMELL&facets=severities,types,statuses&componentKeys=Defra.Trade.Plants,Defra.Trade.Remos&resolved=false&organization=defra", "url_options": { "data": "", "method": "GET" } }
+                    ],
+                    "title": "PHES_CodeSmells",
+                    "transformations": [
+                        { "id": "joinByField", "options": { "byField": "severity", "mode": "outer" } },
+                        { "id": "calculateField", "options": { "mode": "reduceRow", "reduce": { "reducer": "sum" } } },
+                        { "id": "organize", "options": { "excludeByName": { "resultCounts A": true, "resultCounts B": true }, "includeByName": {}, "indexByName": {}, "renameByName": {} } }
+                    ],
+                    "type": "barchart"
+                },
+                {
+                    "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "cehvnuynpgwzkb" },
+                    "fieldConfig": {
+                        "defaults": {
+                            "color": { "mode": "thresholds" },
+                            "custom": { "axisBorderShow": false, "axisCenteredZero": false, "axisColorMode": "text", "axisLabel": "", "axisPlacement": "auto", "fillOpacity": 80, "gradientMode": "none", "hideFrom": { "legend": false, "tooltip": false, "viz": false }, "lineWidth": 1, "scaleDistribution": { "type": "linear" }, "thresholdsStyle": { "mode": "off" } },
+                            "mappings": [ { "options": { "MAJOR": { "color": "red", "index": 0 } }, "type": "value" } ],
+                            "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null } ] }
+                        },
+                        "overrides": []
+                    },
+                    "gridPos": { "h": 8, "w": 4, "x": 12, "y": 22 },
+                    "id": 16,
+                    "options": { "barRadius": 0, "barWidth": 0.97, "colorByField": "severity", "fullHighlight": false, "groupWidth": 0.7, "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false }, "orientation": "auto", "showValue": "auto", "stacking": "none", "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" }, "xTickLabelRotation": 0, "xTickLabelSpacing": 0 },
+                    "pluginVersion": "11.5.2",
+                    "targets": [
+                        { "columns": [], "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "cehvnuynpgwzkb" }, "filters": [], "format": "table", "global_query_id": "", "parser": "uql", "refId": "A", "root_selector": "", "source": "url", "type": "json", "uql": "parse-json\r\n| scope \"issues\"\r\n| extend \"severity\"=tostring(\"severity\")\r\n| summarize \"resultCounts\"=count() by \"severity\"\r\n| project \"severity\",\"resultCounts\"", "url": "/api/issues/search?componentKeys=Defra.Trade.Plants,Defra.Trade.Remos&types=BUG&resolved=false", "url_options": { "data": "", "method": "GET" } }
+                    ],
+                    "title": "PHES_Bugs",
+                    "type": "barchart"
+                },
+                {
+                    "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "aehhh1k3aieioc" },
+                    "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 80 } ] } }, "overrides": [] },
+                    "gridPos": { "h": 8, "w": 4, "x": 16, "y": 22 },
+                    "id": 9,
+                    "options": { "minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": { "calcs": [ "lastNotNull" ], "fields": "", "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto" },
+                    "pluginVersion": "11.5.2",
+                    "targets": [
+                        { "columns": [], "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "aehhh1k3aieioc" }, "filters": [], "format": "table", "global_query_id": "", "parser": "uql", "refId": "A", "root_selector": "", "source": "url", "type": "json", "uql": "parse-json", "url": "/api/hotspots/search", "url_options": { "data": "", "method": "GET", "params": [ { "key": "projectKey", "value": "plants-admin-ui" } ] } }
+                    ],
+                    "title": "Security_HotSpot",
+                    "type": "gauge"
+                },
+                {
+                    "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "aehhh1k3aieioc" },
+                    "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 80 } ] } }, "overrides": [] },
+                    "gridPos": { "h": 8, "w": 4, "x": 20, "y": 22 },
+                    "id": 10,
+                    "options": { "minVizHeight": 75, "minVizWidth": 75, "orientation": "auto", "reduceOptions": { "calcs": [ "lastNotNull" ], "fields": "", "values": false }, "showThresholdLabels": false, "showThresholdMarkers": true, "sizing": "auto" },
+                    "pluginVersion": "11.5.2",
+                    "targets": [
+                        { "columns": [], "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "aehhh1k3aieioc" }, "filters": [], "format": "table", "global_query_id": "", "parser": "uql", "refId": "A", "root_selector": "", "source": "url", "type": "json", "uql": "parse-json\r\n| scope \"issues\"\r\n| extend \"severity\"=tostring(\"severity\")\r\n| summarize \"resultCounts\"=count() by \"severity\"\r\n| project \"severity\",\"resultCounts\"", "url": "/api/issues/search", "url_options": { "data": "", "method": "GET", "params": [ { "key": "types", "value": "VULNERABILITY" }, { "key": "componentKeys", "value": "value" }, { "key": "branch", "value": "master" }, { "key": "statuses", "value": "OPEN" } ] } }
+                    ],
+                    "title": "Vulnerabilities",
+                    "type": "gauge"
+                },
+                {
+                    "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "eey57h51ykruoc" },
+                    "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "custom": { "align": "auto", "cellOptions": { "type": "auto" }, "inspect": false }, "mappings": [], "thresholds": { "mode": "absolute", "steps": [ { "color": "green", "value": null }, { "color": "red", "value": 80 } ] } }, "overrides": [] },
+                    "gridPos": { "h": 6, "w": 4, "x": 0, "y": 30 },
+                    "id": 29,
+                    "options": { "cellHeight": "sm", "footer": { "countRows": false, "fields": "", "reducer": [ "sum" ], "show": false }, "showHeader": true },
+                    "pluginVersion": "11.5.2",
+                    "targets": [
+                        { "columns": [], "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "eey57h51ykruoc" }, "filters": [], "format": "table", "global_query_id": "", "parser": "uql", "refId": "A", "root_selector": "", "source": "url", "type": "json", "uql": "parse-json\r\n| scope \"workItems\"\r\n| extend \"id\"=tostring(\"id\")\r\n| project \"id\"", "url": "/defradev/CCTS-QA%20Security%20Hub/_apis/wit/wiql?api-version=7.1-preview.2", "url_options": { "body_content_type": "application/json", "body_type": "raw", "data": "{\r\n  \"query\": \"SELECT [System.ID] FROM WorkItems WHERE [System.AreaPath]=''CCTS-QA Security Hub\\\\PHES'' AND [System.State]=''Active'' AND [System.WorkItemType]=''Bug'' \" \r\n}", "method": "POST" } }
+                    ],
+                    "title": "Azure SecurityBugs",
+                    "type": "table"
+                },
+                {
+                    "fieldConfig": { "defaults": {}, "overrides": [] },
+                    "gridPos": { "h": 6, "w": 5, "x": 4, "y": 30 },
+                    "id": 2,
+                    "options": { "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }, "content": "\nSmoke Test Pipeline: [![Build Status](https://jenkins-plants.azure.defra.cloud/buildStatus/icon?job=Plants_Quality_Assurance%2FRun-Smoke-Tests-RTL)](https://jenkins-plants.azure.defra.cloud/job/Plants_Quality_Assurance/job/Run-Smoke-Tests-RTL/)\n\nRegression Test Pipeline: [![Build Status](https://jenkins-plants.azure.defra.cloud/buildStatus/icon?job=deploy-test%2Fmaster%2Fmaster)](https://jenkins-plants.azure.defra.cloud/job/deploy-test/job/master/job/master/)\n", "mode": "markdown" },
+                    "pluginVersion": "11.5.2",
+                    "title": "Functional Test Pipelines",
+                    "type": "text"
+                },
+                {
+                    "fieldConfig": { "defaults": {}, "overrides": [] },
+                    "gridPos": { "h": 6, "w": 15, "x": 9, "y": 30 },
+                    "id": 11,
+                    "options": { "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }, "content": "ALT: Performance Testing: [![Build Status](https://dev.azure.com/defragovuk/CCTS-Performance-Testing/_apis/build/status%2FPHES_Pipeline?branchName=main)](https://dev.azure.com/defragovuk/CCTS-Performance-Testing/_build/latest?definitionId=7348&branchName=main)\r\n\r\n\r\nAccessibility Testing: [![Build Status](https://jenkins-plants.azure.defra.cloud/buildStatus/icon?job=Plants_Quality_Assurance%2Fplants-accessibility-pipeline)](https://jenkins-plants.azure.defra.cloud/job/Plants_Quality_Assurance/job/plants-accessibility-pipeline/)\r\n\r\nCompatbility Testing:\r\nBrowserstack-windows-11-latest-chrome: [![Build Status](https://jenkins-plants.azure.defra.cloud/buildStatus/icon?job=Plants_Quality_Assurance%2Fplants-nightly-tests-browserstack-windows-11-latest-chrome)](https://jenkins-plants.azure.defra.cloud/job/Plants_Quality_Assurance/job/plants-nightly-tests-browserstack-windows-11-latest-chrome/)\r\nBrowserstack-windows-11-latest-edge: [![Build Status](https://jenkins-plants.azure.defra.cloud/buildStatus/icon?job=Plants_Quality_Assurance%2Fplants-nightly-tests-browserstack-windows-11-latest-edge)](https://jenkins-plants.azure.defra.cloud/job/Plants_Quality_Assurance/job/plants-nightly-tests-browserstack-windows-11-latest-edge/)\r\nBrowserstack-windows-firefox: [![Build Status](https://jenkins-plants.azure.defra.cloud/buildStatus/icon?job=Plants_Quality_Assurance%2Fplants-nightly-tests-browserstack-windows-firefox)](https://jenkins-plants.azure.defra.cloud/job/Plants_Quality_Assurance/job/plants-nightly-tests-browserstack-windows-firefox/)\r\n", "mode": "markdown" },
+                    "pluginVersion": "11.5.2",
+                    "title": "NFT",
+                    "type": "text"
+                }
+            ]
+        };
+
+
+        // --- Page Navigation ---
+        const navLinks = {
+            'page-home': document.getElementById('nav-home'),
+            'page-instance': document.getElementById('nav-instance'),
+            'page-datasource': document.getElementById('nav-datasource'),
+            'page-dashboard': document.getElementById('nav-dashboard')
+        };
+        const pages = document.querySelectorAll('.page-content');
+        const globalErrorDiv = document.getElementById('global-error');
+
+        /**
+         * Shows a specific page and highlights its nav link.
+         * @param {string} pageId - The ID of the page to show (e.g., 'page-instance').
+         */
+        function showPage(pageId) {
+            // Define active and inactive styles for navigation buttons
+            const activeStyle = 'bg-grafana-primary text-white shadow-lg shadow-sky-500/50';
+            const inactiveStyle = 'bg-white/60 text-gray-700 hover:bg-white/90';
+
+            // Hide all pages
+            pages.forEach(page => {
+                page.classList.add('hidden');
+            });
+            
+            // De-activate all nav links
+            Object.values(navLinks).forEach(link => {
+                if (link) {
+                    link.className = link.className.split(' ').filter(c => !activeStyle.includes(c) && !inactiveStyle.includes(c)).join(' ') + ' ' + inactiveStyle;
+                }
+            });
+            
+            // Show the target page
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+            }
+            
+            // Activate the target nav link
+            const targetLink = navLinks[pageId];
+            if (targetLink) {
+                targetLink.className = targetLink.className.split(' ').filter(c => !activeStyle.includes(c) && !inactiveStyle.includes(c)).join(' ') + ' ' + activeStyle;
+            }
+        }
+        
+        /**
+         * Displays a global error message above the page content.
+         * @param {string} message - The error message to display.
+         */
+        function showGlobalError(message) {
+            globalErrorDiv.textContent = message;
+            globalErrorDiv.classList.remove('hidden');
+            globalErrorDiv.classList.add('bg-red-100/70', 'glass-section');
+        }
+
+        /**
+         * Clears the global error message.
+         */
+        function clearGlobalError() {
+            globalErrorDiv.textContent = '';
+            globalErrorDiv.classList.add('hidden');
+            globalErrorDiv.classList.remove('bg-red-100/70', 'glass-section');
+        }
+        // --- End Page Navigation ---
+
+
+        /**
+         * Pre-populates the dashboard JSON textarea on page load.
+         */
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                const textarea = document.getElementById('dashboard_json');
+                textarea.value = JSON.stringify(defaultDashboardJson, null, 2);
+            } catch (e) {
+                console.error("Failed to stringify default dashboard JSON:", e);
+            }
+            // Set initial page state
+            showPage('page-home');
+        });
+
+
+        /**
+         * Converts a string to Base64 (used for Basic Auth encoding).
+         * @param {string} str - The string to encode.
+         * @returns {string} The Base64 encoded string.
+         */
+        const toBase64 = (str) => {
+            try {
+                // Use btoa for standard browser-safe encoding
+                return btoa(unescape(encodeURIComponent(str)));
+            } catch (e) {
+                // Fallback for environments where btoa might fail or characters are outside the ASCII range (though unlikely for user:pass)
+                console.error("Base64 encoding failed:", e);
+                return '';
+            }
+        };
+
+        /**
+         * Gets the common Grafana connection details from Section 1.
+         * @param {HTMLElement} statusPreElement - The <pre> element to show local status.
+         * @returns {object|null} An object with url and authorizationHeader, or null if inputs are missing.
+         */
+        function getGrafanaAuth(statusPreElement) {
+            clearGlobalError(); // Clear old auth errors
+            const grafanaUrl = document.getElementById('grafana_url').value.trim();
+            const apiUsername = document.getElementById('grafana_username').value.trim();
+            const apiPassword = document.getElementById('grafana_password').value;
+
+            if (!grafanaUrl || !apiUsername || !apiPassword) {
+                const errorMsg = "Error: Please fill in all required fields on the '1. Instance Details' page and try again.";
+                showGlobalError(errorMsg);
+                
+                // Also show in local status
+                if (statusPreElement) {
+                     statusPreElement.textContent = "Error: Missing Grafana Instance details from Page 1.";
+                     statusPreElement.classList.replace('bg-gray-800', 'bg-red-600');
+                     statusPreElement.classList.remove('bg-green-600');
+                }
+                return null;
+            }
+
+            // Construct Basic Auth Header for Grafana API access
+            const authString = toBase64(`${apiUsername}:${apiPassword}`);
+            const authorizationHeader = `Basic ${authString}`;
+
+            return { grafanaUrl, authorizationHeader };
+        }
+
+        /**
+         * Main function to create the DATASOURCE.
+         */
+        async function createDatasource() {
+            const button = document.getElementById('ds-button');
+            const loader = document.getElementById('ds-loader');
+            const statusPre = document.getElementById('ds-response-status');
+
+            // 1. Get common auth details
+            const authDetails = getGrafanaAuth(statusPre);
+            if (!authDetails) return;
+            const { grafanaUrl, authorizationHeader } = authDetails;
+
+            // 2. Gather datasource-specific inputs
+            const skipSSLVerify = document.getElementById('skip_ssl_verify').checked;
+            const dsName = document.getElementById('ds_name').value.trim();
+            const dsType = document.getElementById('ds_type').value;
+            const dsUrl = document.getElementById('ds_url').value.trim();
+            const dsAccess = document.getElementById('ds_access').value;
+            const dsBasicAuth = document.getElementById('ds_basic_auth').checked;
+
+            // Simple validation
+            if (!dsName || !dsUrl) {
+                statusPre.textContent = "Error: Please fill in all required fields (Datasource Name and URL).";
+                statusPre.classList.replace('bg-gray-800', 'bg-red-600');
+                return;
+            }
+
+            // 3. Prepare request components
+            if(button) button.disabled = true;
+            loader.classList.remove('hidden');
+            statusPre.classList.replace('bg-green-600', 'bg-gray-800');
+            statusPre.classList.replace('bg-red-600', 'bg-gray-800');
+            statusPre.textContent = "Processing request...";
+
+            const endpoint = `${grafanaUrl}/api/datasources`;
+
+            // Construct JSON Payload
+            const payload = {
+                name: dsName,
+                type: dsType,
+                url: dsUrl,
+                access: dsAccess,
+                basicAuth: dsBasicAuth,
+                isDefault: false,
+                skipSslVerify: skipSSLVerify,
+            };
+
+            // 4. Execute the fetch request
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authorizationHeader,
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // 5. Handle Response
+                const responseBody = await response.json().catch(() => ({ message: 'Could not parse response JSON' }));
+                
+                let responseText = `Status: ${response.status} ${response.statusText}\n`;
+                responseText += `\nResponse Body:\n${JSON.stringify(responseBody, null, 2)}`;
+                
+                statusPre.textContent = responseText;
+
+                if (response.ok) {
+                    statusPre.classList.replace('bg-gray-800', 'bg-green-600');
+                } else {
+                    statusPre.classList.replace('bg-gray-800', 'bg-red-600');
+                }
+
+            } catch (error) {
+                // Handle network errors (e.g., CORS, connection refused)
+                let errorMsg = `Network Error: Could not connect to Grafana at ${endpoint}.\n`;
+                errorMsg += "This is often due to a network or CORS issue.\n";
+                errorMsg += "Ensure Grafana is running and accessible from this page's origin.";
+                statusPre.textContent = errorMsg;
+                statusPre.classList.replace('bg-gray-800', 'bg-red-600');
+                console.error("API Call Error:", error);
+            } finally {
+                // Re-enable the button
+                if(button) button.disabled = false;
+                loader.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Main function to create the DASHBOARD.
+         */
+        async function createDashboard() {
+            const button = document.getElementById('dash-button');
+            const loader = document.getElementById('dash-loader');
+            const statusPre = document.getElementById('dash-response-status');
+
+            // 1. Get common auth details
+            const authDetails = getGrafanaAuth(statusPre);
+            if (!authDetails) return;
+            const { grafanaUrl, authorizationHeader } = authDetails;
+
+            // 2. Gather dashboard-specific inputs
+            const folderId = parseInt(document.getElementById('dash_folder_id').value, 10) || 0;
+            const overwrite = document.getElementById('dash_overwrite').checked;
+            const dashboardJsonString = document.getElementById('dashboard_json').value;
+
+            let dashboardObject;
+            try {
+                dashboardObject = JSON.parse(dashboardJsonString);
+            } catch (e) {
+                statusPre.textContent = `Error: Invalid Dashboard JSON.\nParsing failed: ${e.message}`;
+                statusPre.classList.replace('bg-gray-800', 'bg-red-600');
+                return;
+            }
+
+            // 3. Prepare request components
+            if(button) button.disabled = true;
+            loader.classList.remove('hidden');
+            statusPre.classList.replace('bg-green-600', 'bg-gray-800');
+            statusPre.classList.replace('bg-red-600', 'bg-gray-800');
+            statusPre.textContent = "Processing request...";
+
+            const endpoint = `${grafanaUrl}/api/dashboards/db`;
+
+            // Construct JSON Payload
+            const payload = {
+                dashboard: dashboardObject,
+                folderId: folderId,
+                overwrite: overwrite
+            };
+
+            // 4. Execute the fetch request
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authorizationHeader,
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                // 5. Handle Response
+                const responseBody = await response.json().catch(() => ({ message: 'Could not parse response JSON' }));
+                
+                let responseText = `Status: ${response.status} ${response.statusText}\n`;
+                responseText += `\nResponse Body:\n${JSON.stringify(responseBody, null, 2)}`;
+                
+                statusPre.textContent = responseText;
+
+                if (response.ok) {
+                    statusPre.classList.replace('bg-gray-800', 'bg-green-600');
+                } else {
+                    statusPre.classList.replace('bg-gray-800', 'bg-red-600');
+                }
+
+            } catch (error) {
+                // Handle network errors (e.g., CORS, connection refused)
+                let errorMsg = `Network Error: Could not connect to Grafana at ${endpoint}.\n`;
+                errorMsg += "This is often due to a network or CORS issue.\n";
+                errorMsg += "Ensure Grafana is running and accessible from this page's origin.";
+                statusPre.textContent = errorMsg;
+                statusPre.classList.replace('bg-gray-800', 'bg-red-600');
+                console.error("API Call Error:", error);
+            } finally {
+                // Re-enable the button
+                if(button) button.disabled = false;
+                loader.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
