@@ -1,0 +1,95 @@
+Postman Curl command : Datasources creation's JSON Body data
+
+// SonarCloud JSON Body request
+
+{
+  "name":"SonarCloud02",
+  "type":"yesoreyeram-infinity-datasource",
+  "url":"https://sonarcloud.io",
+  "access":"proxy",
+  "basicAuth":false,
+        "jsonData": {
+            "allowedHosts": [
+                "https://sonarcloud.io"
+            ],
+            "auth_method": "none",
+            "global_queries": [],
+            "oauthPassThru": false,
+            "pathEncodedUrlsEnabled": true,
+            "unsecuredQueryHandling": "allow"
+        }
+}
+
+//SonarQube JSON Body request
+
+{
+  "name":"SonarQube03",
+  "type":"yesoreyeram-infinity-datasource",
+  "url":"https://vss-sonarqube.azure.defra.cloud",
+  "access":"proxy",
+  "basicAuth":true,"basicAuthUser": "SathishPonnusamy",
+  "secureJsonData": {
+    "basicAuthPassword": "XXXXX"
+  },
+        "jsonData": {
+            "allowedHosts": [
+                "https://vss-sonarqube.azure.defra.cloud"
+            ],
+            "auth_method": "basicAuth",
+            "global_queries": [],
+            "oauthPassThru": false,
+            "pathEncodedUrlsEnabled": true,
+            "unsecuredQueryHandling": "allow"
+        }
+}
+
+//Jenkins JSON Request Body
+
+{
+  "name":"Jenkins01",
+  "type":"yesoreyeram-infinity-datasource",
+  "url":"https://jenkins-plants.azure.defra.cloud",
+  "access":"proxy",
+  "basicAuth":true,"basicAuthUser": "Sathish.Ponnusamy@defra.onmicrosoft.com",
+  "secureJsonData": {
+    "basicAuthPassword": "XXXXX"
+  },
+        "jsonData": {
+            "allowedHosts": [
+                "https://jenkins-plants.azure.defra.cloud"
+            ],
+            "auth_method": "basicAuth",
+            "global_queries": [],
+            "oauthPassThru": false,
+            "pathEncodedUrlsEnabled": true,
+            "unsecuredQueryHandling": "allow"
+        }
+}
+
+
+//Azure JSON Request Body
+
+{
+  "name":"Azure01",
+  "type":"yesoreyeram-infinity-datasource",
+  "url":"https://dev.azure.com/defragovuk",
+  "access":"proxy",
+  "basicAuth":true,"basicAuthUser": "Sathish.Ponnusamy2@cognizant.com",
+  "secureJsonData": {
+    "basicAuthPassword": "XXXXX"
+  },
+        "jsonData": {
+            "allowedHosts": [
+                "https://dev.azure.com/defragovuk"
+            ],
+            "auth_method": "basicAuth",
+            "customHealthCheckEnabled": true,
+            "customHealthCheckUrl": "https://dev.azure.com/defragovuk",
+            "global_queries": [],
+            "httpHeaderName1": "Authorization",
+            "httpHeaderName2": "Content-Type",
+            "oauthPassThru": false,
+            "pathEncodedUrlsEnabled": true,
+            "unsecuredQueryHandling": "allow"
+        }
+}
