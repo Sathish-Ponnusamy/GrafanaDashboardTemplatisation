@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Grafana Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="Index.html">Home</a>
+        <a href="create-datasource.html">Create Grafana Datasource</a>
+        <a href="create-dashboard.html">Create Grafana Dashboard</a>
+    </div>
+    <div class="container">
+        <div class="collapsible-header">
+            <h2>Create Grafana Dashboard</h2>
+            <button id="toggleDashboard" class="toggle-btn">-</button>
+        </div>
+        <div id="collapsible-dashboard">
+            <div class="menu-container" id="dashboard-menu">
+                <div class="menu-item" data-target="sonarqube-content">SonarQube</div>
+                <div class="menu-item" data-target="sonarcloud-content">SonarCloud</div>
+                <div class="menu-item" data-target="jenkins-content">Jenkins</div>
+                <div class="menu-item" data-target="azure-content">Azure</div>
+                <div class="menu-item" data-target="browserstack-content">BrowserStack</div>
+            </div>
+
+            <div id="dashboard-content-container">
+                <div id="sonarqube-content" class="dashboard-content">
+                    <button class="add-textbox-btn" data-target="sonarqube-textboxes">Add Project</button>
+                    <div id="sonarqube-textboxes" class="textbox-container"></div>
+                    <button class="save-btn" data-section="sonarqube">Save</button>
+                </div>
+                <div id="sonarcloud-content" class="dashboard-content">
+                    <button class="add-textbox-btn" data-target="sonarcloud-textboxes">Add Project</button>
+                    <div id="sonarcloud-textboxes" class="textbox-container"></div>
+                    <button class="save-btn" data-section="sonarcloud">Save</button>
+                </div>
+                <div id="jenkins-content" class="dashboard-content">
+                    <button class="add-textbox-btn" data-target="jenkins-textboxes">Add Job</button>
+                    <div id="jenkins-textboxes" class="textbox-container"></div>
+                    <button class="save-btn" data-section="jenkins">Save</button>
+                </div>
+                <div id="azure-content" class="dashboard-content">
+                    <button class="add-textbox-btn" data-target="azure-textboxes">Add Query</button>
+                    <div id="azure-textboxes" class="textbox-container"></div>
+                    <button class="save-btn" data-section="azure">Save</button>
+                </div>
+                <div id="browserstack-content" class="dashboard-content">
+                    <button class="add-textbox-btn" data-target="browserstack-textboxes">Add Build</button>
+                    <div id="browserstack-textboxes" class="textbox-container"></div>
+                    <button class="save-btn" data-section="browserstack">Save</button>
+                </div>
+            </div>
+
+            <button id="createDashboardBtn">Create Grafana Dashboard</button>
+        </div>
+        <div id="dashboardMessage"></div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

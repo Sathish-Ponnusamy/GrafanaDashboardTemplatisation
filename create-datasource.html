@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Grafana Datasource</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="Index.html">Home</a>
+        <a href="create-datasource.html">Create Grafana Datasource</a>
+        <a href="create-dashboard.html">Create Grafana Dashboard</a>
+    </div>
+    <div class="container">
+        <div class="collapsible-header">
+            <h2>Create Grafana Datasource</h2>
+            <button id="toggleDatasource" class="toggle-btn">-</button>
+        </div>
+        <div id="collapsible-datasource">
+            <form id="datasourceForm">
+                <div class="form-group">
+                    <label>Select Datasource Type:</label>
+                    <div class="menu-container">
+                        <div class="menu-item" data-value="jenkins">Jenkins</div>
+                        <div class="menu-item" data-value="azure">Azure</div>
+                        <div class="menu-item" data-value="sonarqube">SonarQube</div>
+                        <div class="menu-item" data-value="sonarcloud">SonarCloud</div>
+                    </div>
+                    <input type="hidden" id="datasource-type" name="datasource">
+                </div>
+                <div id="datasource-details">
+                    <div class="form-group">
+                        <label for="url">URL:</label>
+                        <input type="url" id="url" required>
+                    </div>
+                    <div id="auth-credentials">
+                        <div class="form-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password:</label>
+                            <input type="password" id="password">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit">Create Datasource</button>
+            </form>
+        </div>
+        <div id="datasourceMessage"></div>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
